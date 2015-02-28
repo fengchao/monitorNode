@@ -1,0 +1,49 @@
+extends layout
+
+block content
+	form(method="get" action="/log")
+		label(for="date") Date:
+		input(type="date", name="date" min="2014/11/01", max="2015/12/31")
+
+		label(for="mtCode") MT Code:
+		input(type="text", name="mtCode")
+
+		label(for="isErrorOnly") ErrorOnly
+		input(type="checkbox", name="isErrorOnly")
+
+		input(type="submit" value="Search")
+
+	table.table.table-condensed.table-bordered
+		thead
+		tr
+			th Time
+			th MT
+			th Language
+			th Result
+		tbody
+			- each item in result
+				case item.errorcode
+					when ""
+						tr.success
+							td= item.datetime
+							td= item.mt
+							td= item.language
+							td= item.errorcode
+					when "0"
+						tr.success
+							td= item.datetime
+							td= item.mt
+							td= item.language
+							td= item.errorcode
+					when "102"
+						tr.warning
+							td= item.datetime
+							td= item.mt
+							td= item.language
+							td= item.errorcode
+					default
+						tr.danger
+							td= item.datetime
+							td= item.mt
+							td= item.language
+							td= item.errorcode
