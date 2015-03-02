@@ -1,7 +1,7 @@
 extends layout
 
 block content
-	form(enctype="multipart/form-data" method="post" action="/import")
+	form(enctype="multipart/form-data" method="post" action="import")
 		label(for="Path") Raw Log file:
-			input(type="file", name="filePath", title="File name")
+			input(type="file", name="rawlog")
 		input(type="submit" value="Import")
