@@ -1,6 +1,7 @@
 # Logs
 logs
 *.log
+*.*~
 
 # Runtime data
 pids
@@ -33,3 +34,11 @@ node_modules
 .jshintrc
 .settings/*
 .tern-project
+
+# Run time dir
+uploads/*
+!uploads/Readme
+log_archive/akamai_log/
+!log_archive/akamai_log/Readme
+log_archive/monitor_log/*
+log_archive/monitor_log
