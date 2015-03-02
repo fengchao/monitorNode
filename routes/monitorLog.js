@@ -31,4 +31,20 @@ router.get('/show', function (req,res){
 	});
 });
 
+router.get('/import', function(req,res){
+	res.render('monitorImport');
+});
+
+router.post('/import', function(req,res){
+	if(req.files.filePic!='undefined'){ //如果有需要上传的文件
+		var tempPath=req.files.filePic.path; //获取上传之后的文件路径
+		fs.rename(tempPath,"F:\\TEST\\test\\1.jpg",function(err){  //将文件移动到你所需要的位置
+			if(err){throw err}
+			fs.fs.unlink(tempPath);	
+		});
+	}
+	res.send("put");
+});
+
+
 module.exports = router;
