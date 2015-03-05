@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var fs = require('fs');
 
 require('../modules/monitorLogData');
 var mongoose = require('mongoose');
@@ -32,21 +33,28 @@ router.get('/show', function (req,res){
 });
 
 router.get('/import', function(req,res){
-	res.render('monitorImport');
+	res.render('monitorImport', {
+			lines: "Imported file will show here".split('/\r?\n/')
+		});
 });
 
 var fs = require('fs');
 var Busboy = require('busboy');
 router.post('/import', function(req,res){
 	var busboy = new Busboy({headers: req.headers});
+	var targetFile;
 	busboy.on('file', function (fieldname, file, filename) {
 		console.log("Uploading:" + filename);
-		fstream = fs.createWriteStream('../log_archive/monitor_log/' + filename);
+		targetFile = '../log_archive/monitor_log/' + filename;
+		fstream = fs.createWriteStream(targetFile);
 		file.pipe(fstream);
 	});
 	busboy.on('finish', function() {
-	   res.writeHead(200, { 'Connection': 'close' });
-	   res.end("File uploaded.");
+		fs.readFile(targetFile, 'utf8', function (err, data) {
+			res.render('monitorImport', {
+				lines: data.toString().split('\n')
+			});
+		});
 	});
 	req.pipe(busboy);
 });
