@@ -1,7 +1,8 @@
 {
-  "name": "eclipTest",
-  "version": "0.0.0",
+  "name": "Monitor management",
+  "version": "0.0.1",
   "private": true,
+  "author": "Feng Chao",
   "scripts": {
     "start": "node ./bin/www"
   },
