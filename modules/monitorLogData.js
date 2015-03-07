@@ -1,14 +1,14 @@
 var mongoose = require('mongoose');
 
 var MonitorSchema = new mongoose.Schema({
-	IsLenovoPreload: boolean,
+	IsLenovoPreload: String,
 	OS : String,
 	Language : String,
 	OSBit : String,
 	GUID : String,
 	DateTime : String,
 	SecondXML : String,
-	Day : { type: [String], index: true},
+	Day : { type: String, index: true},
 	secondxml : String,
 	LUVersion : String,
 	LogType : String,

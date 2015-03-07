@@ -22,28 +22,28 @@ block content
 			th Result
 		tbody
 			- each item in result
-				case item.errorcode
+				case item.ErrorCode
 					when ""
 						tr.success
-							td= item.datetime
-							td= item.mt
-							td= item.language
-							td= item.errorcode
+							td= item.DateTime
+							td= item.MT
+							td= item.Language
+							td= item.ErrorCode
 					when "0"
 						tr.success
-							td= item.datetime
-							td= item.mt
-							td= item.language
-							td= item.errorcode
+							td= item.DateTime
+							td= item.MT
+							td= item.Language
+							td= item.ErrorCode
 					when "102"
 						tr.warning
-							td= item.datetime
-							td= item.mt
-							td= item.language
-							td= item.errorcode
+							td= item.DateTime
+							td= item.MT
+							td= item.Language
+							td= item.ErrorCode
 					default
 						tr.danger
-							td= item.datetime
-							td= item.mt
-							td= item.language
-							td= item.errorcode
+							td= item.DateTime
+							td= item.MT
+							td= item.Language
+							td= item.ErrorCode

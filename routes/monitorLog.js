@@ -6,7 +6,7 @@ require('../modules/monitorLogData');
 var mongoose = require('mongoose');
 var Validator = require('validator').Validator;
 
-var monitorLog = mongoose.model('lu');
+var MonitorLog = mongoose.model('MonitorLog');
 
 function validate(message) {
 	var v= new Validator();
@@ -24,8 +24,7 @@ function validate(message) {
 router.get('/show', function (req,res){
 	var message = req.body.message;
 	var errors = validate(message);
-
-	monitorLog.find({}, function (err, result) {
+	MonitorLog.find({}, function (err, result) {
 		res.render('monitorLog', {
 			result : result
 		});
@@ -51,9 +50,34 @@ router.post('/import', function(req,res){
 	});
 	busboy.on('finish', function() {
 		fs.readFile(targetFile, 'utf8', function (err, data) {
+			var lines = data.toString().split('\n');
+			console.log("Lines: " + lines);
+			for (var i in lines) {
+				console.log("Line[" + i + "]:" + lines[i]);
+				
+				if (lines[i].length < 5) {
+					console.log("Skip. Line length is too short: " + lines[i].length);
+					continue;
+				}
+				var monitorLog = new MonitorLog();
+				var pairs = lines[i].split('&');
+				for (i in pairs) {
+					console.log("Pair:" + pairs[i]);
+					var values = pairs[i].split('=');
+					monitorLog[values[0]] = values[1];
+					if (values[0] === 'DateTime') {
+						monitorLog["Day"] = values[1].slice(0, 10);
+					}
+				}
+				monitorLog.save (function (err) {
+					if (err)
+						console.log(err);
+				});
+			}
 			res.render('monitorImport', {
 				lines: data.toString().split('\n')
 			});
+			
 		});
 	});
 	req.pipe(busboy);
