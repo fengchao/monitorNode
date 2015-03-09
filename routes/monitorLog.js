@@ -72,7 +72,7 @@ router.post('/import', function(req,res){
 		fs.readFile(targetFile, 'utf8', function (err, data) {
 			var lines = data.toString().split('\n');
 			console.log("Lines: " + lines);
-			for (var i=lines.length-1; i >=0; i--) {
+			for (var i =lines.length-1; i >= 0; i--) {
 				console.log("Line[" + i + "]:" + lines[i]);
 				
 				if (lines[i].length < 5) {
@@ -81,15 +81,15 @@ router.post('/import', function(req,res){
 				}
 				var monitorLog = new MonitorLog();
 				var pairs = lines[i].split('&');
-				for (i = pairs.length -1; i>=0; i--) {
-					console.log("Pair:" + pairs[i]);
-					var values = pairs[i].split('=');
+				for (var j = pairs.length - 1; j>=0; j--) {
+					console.log("Pair:" + pairs[j]);
+					var values = pairs[j].split('=');
 					monitorLog[values[0]] = values[1];
 					if (values[0] === 'DateTime') {
 						monitorLog.Day = values[1].slice(0, 10);
 					}
 				}
-				monitorLog.save (writeError);
+				monitorLog.save(writeError);
 			}
 			res.render('monitorImport', {
 				lines: data.toString().split('\n')

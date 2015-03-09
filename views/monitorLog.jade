@@ -19,31 +19,31 @@ block content
 			th Time
 			th MT
 			th Language
+			th SecondXML
 			th Result
+			th ReturnCode
 		tbody
 			- each item in result
+				mixin loglist
+					td= item.DateTime
+					td= item.MT
+					td= item.Language
+					td= item.SecondXML
+					td= item.ErrorCode
+					if item.ReturnCode
+						td= item.ReturnCode
+					else
+						td -
 				case item.ErrorCode
 					when ""
 						tr.success
-							td= item.DateTime
-							td= item.MT
-							td= item.Language
-							td= item.ErrorCode
+							+loglist
 					when "0"
 						tr.success
-							td= item.DateTime
-							td= item.MT
-							td= item.Language
-							td= item.ErrorCode
+							+loglist
 					when "102"
 						tr.warning
-							td= item.DateTime
-							td= item.MT
-							td= item.Language
-							td= item.ErrorCode
+							+loglist
 					default
 						tr.danger
-							td= item.DateTime
-							td= item.MT
-							td= item.Language
-							td= item.ErrorCode
+							+loglist
