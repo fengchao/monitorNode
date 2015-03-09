@@ -1,9 +1,9 @@
 extends layout
 
 block content
-	form(method="get" action="/log")
+	form(method="get" action="show")
 		label(for="date") Date:
-		input(type="date", name="date" min="2014/11/01", max="2015/12/31")
+		input(type="date", name="date", min="2014-11-01", max="2015-12-31", value= logDate)
 
 		label(for="mtCode") MT Code:
 		input(type="text", name="mtCode")
@@ -11,7 +11,7 @@ block content
 		label(for="isErrorOnly") ErrorOnly
 		input(type="checkbox", name="isErrorOnly")
 
-		input(type="submit" value="Search")
+		input(type="submit", value="Search")
 
 	table.table.table-condensed.table-bordered
 		thead
