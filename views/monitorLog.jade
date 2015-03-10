@@ -1,49 +1,50 @@
 extends layout
 
 block content
-	form(method="get" action="show")
-		label(for="date") Date:
-		input(type="date", name="date", min="2014-11-01", max="2015-12-31", value= logDate)
-
-		label(for="mtCode") MT Code:
-		input(type="text", name="mtCode")
-
-		label(for="isErrorOnly") ErrorOnly
-		input(type="checkbox", name="isErrorOnly")
-
-		input(type="submit", value="Search")
-
-	table.table.table-condensed.table-bordered
-		thead
-		tr
-			th Time
-			th MT
-			th Language
-			th SecondXML
-			th Result
-			th ReturnCode
-		tbody
-			- each item in result
-				mixin loglist
-					td= item.DateTime
-					td= item.MT
-					td= item.Language
-					td= item.SecondXML
-					td= item.ErrorCode
-					if item.ReturnCode
-						td= item.ReturnCode
-					else
-						td -
-				case item.ErrorCode
-					when ""
-						tr.success
-							+loglist
-					when "0"
-						tr.success
-							+loglist
-					when "102"
-						tr.warning
-							+loglist
-					default
-						tr.danger
-							+loglist
+	.container
+		form(method="get" action="show")
+			label(for="date") Date:
+			input(type="date", name="date", min="2014-11-01", max="2015-12-31", value= logDate)
+	
+			label(for="mtCode") MT Code:
+			input(type="text", name="mtCode")
+	
+			label(for="isErrorOnly") ErrorOnly
+			input(type="checkbox", name="isErrorOnly")
+	
+			input(type="submit", value="Search")
+	
+		table.table.table-condensed.table-bordered
+			thead
+			tr
+				th Time
+				th MT
+				th Language
+				th SecondXML
+				th Result
+				th ReturnCode
+			tbody
+				- each item in result
+					mixin loglist
+						td= item.DateTime
+						td= item.MT
+						td= item.Language
+						td= item.SecondXML
+						td= item.ErrorCode
+						if item.ReturnCode
+							td= item.ReturnCode
+						else
+							td -
+					case item.ErrorCode
+						when ""
+							tr.success
+								+loglist
+						when "0"
+							tr.success
+								+loglist
+						when "102"
+							tr.warning
+								+loglist
+						default
+							tr.danger
+								+loglist

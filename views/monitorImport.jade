@@ -1,10 +1,14 @@
 extends layout
 
 block content
-	form(enctype="multipart/form-data" method="post" action="import")
-		label(for="Path") Raw Log file:
-			input(type="file", name="rawlog")
-		input(type="submit" value="Import")
-		
-	each line in lines
-		li= line
+	.container
+		form.form-inline(enctype="multipart/form-data", method="post", action="import", role="form")
+			div.form-group
+				label(for="rawlog") Local Log file:
+			div.form-group
+				input(type="file", name="rawlog")
+			div.form-group
+				input(type="submit", value="Import")
+			
+		each line in lines
+			li= line
