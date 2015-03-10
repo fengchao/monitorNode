@@ -42,7 +42,7 @@ router.get('/show', function (req,res){
 	};
 	
 	//MonitorLog.find({Day : currentDay}).sort('-DateTime').exec(searchCallback);
-	MonitorLog.find().sort('DateTime').exec(searchCallback);
+	MonitorLog.find().sort('-DateTime').exec(searchCallback);
 });
 
 router.get('/import', function(req,res){
@@ -64,9 +64,19 @@ router.post('/import', function(req,res){
 	var targetFile;
 	busboy.on('file', function (fieldname, file, filename) {
 		console.log("Uploading:" + filename);
-		targetFile = '../log_archive/monitor_log/' + filename;
-		var fstream = fs.createWriteStream(targetFile);
-		file.pipe(fstream);
+		
+		// If file already exist, do not write again and set file to a notice.
+		if (fs.existsSync('../log_archive/monitor_log/' + filename)) {
+			targetFile = '../log_archive/monitor_log/Readme';
+		} else {
+			targetFile = '../log_archive/monitor_log/' + filename;
+		}
+
+		var wstream = fs.createWriteStream('../log_archive/monitor_log/' + filename);
+		wstream.on('error', function(err) {
+			console.log('Error:' + err);
+		});
+		file.pipe(wstream);
 	});
 	busboy.on('finish', function() {
 		fs.readFile(targetFile, 'utf8', function (err, data) {
@@ -75,14 +85,14 @@ router.post('/import', function(req,res){
 			for (var i =lines.length-1; i >= 0; i--) {
 				console.log("Line[" + i + "]:" + lines[i]);
 				
-				if (lines[i].length < 5) {
+				if (lines[i].length < 25) {
 					console.log("Skip. Line length is too short: " + lines[i].length);
 					continue;
 				}
 				var monitorLog = new MonitorLog();
 				var pairs = lines[i].split('&');
 				for (var j = pairs.length - 1; j>=0; j--) {
-					console.log("Pair:" + pairs[j]);
+					//console.log("Pair:" + pairs[j]);
 					var values = pairs[j].split('=');
 					monitorLog[values[0]] = values[1];
 					if (values[0] === 'DateTime') {
