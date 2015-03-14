@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var fs = require('fs');
+var Busboy = require('busboy');
 
 require('../modules/monitorLogData');
 var mongoose = require('mongoose');
@@ -51,46 +52,11 @@ router.get('/import', function(req,res){
 		});
 });
 
-var fs = require('fs');
-var Busboy = require('busboy');
+
 var writeError = function (err) {
 	if (err) {
 		console.log(err);
 	}
-};
-
-var importFromFile = function(res, targetFile) {
-	fs.readFile(targetFile, 'utf8', function (err, data) {
-		var startTime = new Date();
-		var lines = data.toString().split('\n');
-		for (var i =lines.length-1; i >= 0; i--) {
-			console.log("Line[" + i + "]:" + lines[i]);
-			
-			if (lines[i].length < 25) {
-				console.log("Skip. Line length is too short: " + lines[i].length);
-				continue;
-			}
-			var monitorLog = new MonitorLog();
-			var pairs = lines[i].split('&');
-			for (var j = pairs.length - 1; j>=0; j--) {
-				//console.log("Pair:" + pairs[j]);
-				var values = pairs[j].split('=');
-				monitorLog[values[0]] = values[1];
-				if (values[0] === 'DateTime') {
-					monitorLog.Day = values[1].slice(0, 10);
-				}
-			}
-			monitorLog.ImportTime = startTime;
-			monitorLog.save(writeError);
-		}
-		
-		var importCallback = function (err, result) {
-			res.render('monitorImport', {
-				result : result,
-			});
-		};
-		MonitorLog.find({ImportTime: startTime}).sort('-DateTime').exec(importCallback);
-	});
 };
 
 router.post('/import', function(req,res){
@@ -112,7 +78,40 @@ router.post('/import', function(req,res){
 		});
 		file.pipe(wstream);
 	});
-	busboy.on('finish', importFromFile(res, targetFile));
+	
+	busboy.on('finish', function() {
+		fs.readFile(targetFile, 'utf8', function (err, data) {
+			var startTime = new Date();
+			var lines = data.toString().split('\n');
+			for (var i =lines.length-1; i >= 0; i--) {
+				console.log("Line[" + i + "]:" + lines[i]);
+				
+				if (lines[i].length < 25) {
+					console.log("Skip. Line length is too short: " + lines[i].length);
+					continue;
+				}
+				var monitorLog = new MonitorLog();
+				var pairs = lines[i].split('&');
+				for (var j = pairs.length - 1; j>=0; j--) {
+					//console.log("Pair:" + pairs[j]);
+					var values = pairs[j].split('=');
+					monitorLog[values[0]] = values[1];
+					if (values[0] === 'DateTime') {
+						monitorLog.Day = values[1].slice(0, 10);
+					}
+				}
+				monitorLog.ImportTime = startTime;
+				monitorLog.save(writeError);
+			}
+			
+			var importCallback = function (err, result) {
+				res.render('monitorImport', {
+					result : result,
+				});
+			};
+			MonitorLog.find({ImportTime: startTime}).sort('-DateTime').exec(importCallback);
+		});
+	});
 	req.pipe(busboy);
 });
 
