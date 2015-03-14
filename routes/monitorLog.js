@@ -15,7 +15,30 @@ Date.prototype.yyyymmdd = function() {
     var mm = (this.getMonth()+1).toString(); // getMonth() is zero-based         
     var dd  = this.getDate().toString();             
     return yyyy + '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]);
-};  
+}; 
+
+//对Date的扩展，将 Date 转化为指定格式的String
+//月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符， 
+//年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字) 
+//例子： 
+//(new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423 
+//(new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18 
+Date.prototype.Format = function (fmt) { //author: meizz 
+ var o = {
+     "M+": this.getMonth() + 1, //月份 
+     "d+": this.getDate(), //日 
+     "h+": this.getHours(), //小时 
+     "m+": this.getMinutes(), //分 
+     "s+": this.getSeconds(), //秒 
+     "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+     "S": this.getMilliseconds() //毫秒 
+ };
+ if (/(y+)/.test(fmt)) 
+	 fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+ for (var k in o)
+	 if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+ return fmt;
+}
 
 function validate(message) {
 	var v= new Validator();
@@ -42,7 +65,6 @@ router.get('/show', function (req,res){
 		});
 	};
 	
-	//MonitorLog.find({Day : currentDay}).sort('-DateTime').exec(searchCallback);
 	MonitorLog.find().sort('-DateTime').limit(200).exec(searchCallback);
 });
 
@@ -58,6 +80,16 @@ var writeError = function (err) {
 		console.log(err);
 	}
 };
+
+router.get('/import/result/:time', function(req, res) {
+	var importCallback = function (err, result) {
+		res.render('monitorImport', {
+			result : result,
+		});
+	};
+	
+	MonitorLog.find({ImportTime: req.params.time}).sort('-DateTime').exec(importCallback);
+});
 
 router.post('/import', function(req,res){
 	var busboy = new Busboy({headers: req.headers});
@@ -78,11 +110,11 @@ router.post('/import', function(req,res){
 		});
 		file.pipe(wstream);
 	});
-	
 	busboy.on('finish', function() {
+		console.log("Upload finished.");
 		fs.readFile(targetFile, 'utf8', function (err, data) {
-			var startTime = new Date();
 			var lines = data.toString().split('\n');
+			var importTime = new Date().Format("yyyy-MM-dd hh:mm:ss"); 
 			for (var i =lines.length-1; i >= 0; i--) {
 				console.log("Line[" + i + "]:" + lines[i]);
 				
@@ -100,20 +132,14 @@ router.post('/import', function(req,res){
 						monitorLog.Day = values[1].slice(0, 10);
 					}
 				}
-				monitorLog.ImportTime = startTime;
+				monitorLog.ImportTime = importTime;
 				monitorLog.save(writeError);
 			}
 			
-			var importCallback = function (err, result) {
-				res.render('monitorImport', {
-					result : result,
-				});
-			};
-			MonitorLog.find({ImportTime: startTime}).sort('-DateTime').exec(importCallback);
+			res.redirect('/monitorlog/import/result/' + importTime);
 		});
 	});
 	req.pipe(busboy);
 });
-
 
 module.exports = router;

@@ -2,14 +2,16 @@ extends layout
 
 block content
 	.container
-		form.form-inline(enctype="multipart/form-data", method="post", action="import", role="form")
+		form.form-inline(enctype="multipart/form-data", method="post", action="/monitorlog/import", role="form")
 			div.form-group
 				label(for="rawlog") Local Log file:
 			div.form-group
 				input(type="file" name="rawlog")
 			div.form-group
 				input(type="submit" value="Import")
-			
-		each line in lines
-			li= line
-		include monitorLogTable
+		if result
+			include monitorLogTable
+		else 
+			.container
+				.p No log is imported.
+		
