@@ -108,36 +108,39 @@ router.post('/import', function(req,res){
 		wstream.on('error', function(err) {
 			console.log('Error:' + err);
 		});
+		wstream.on('close', function() {
+			console.log("Write stream closed");
+			fs.readFile(targetFile, 'utf8', function (err, data) {
+				var lines = data.toString().split('\n');
+				var importTime = new Date().Format("yyyy-MM-dd hh:mm:ss"); 
+				for (var i =lines.length-1; i >= 0; i--) {
+					console.log("Line[" + i + "]:" + lines[i]);
+					
+					if (lines[i].length < 25) {
+						console.log("Skip. Line length is too short: " + lines[i].length);
+						continue;
+					}
+					var monitorLog = new MonitorLog();
+					var pairs = lines[i].split('&');
+					for (var j = pairs.length - 1; j>=0; j--) {
+						//console.log("Pair:" + pairs[j]);
+						var values = pairs[j].split('=');
+						monitorLog[values[0]] = values[1];
+						if (values[0] === 'DateTime') {
+							monitorLog.Day = values[1].slice(0, 10);
+						}
+					}
+					monitorLog.ImportTime = importTime;
+					monitorLog.save(writeError);
+				}
+				
+				res.redirect('/monitorlog/import/result/' + importTime);
+			});
+		});
 		file.pipe(wstream);
 	});
 	busboy.on('finish', function() {
 		console.log("Upload finished.");
-		fs.readFile(targetFile, 'utf8', function (err, data) {
-			var lines = data.toString().split('\n');
-			var importTime = new Date().Format("yyyy-MM-dd hh:mm:ss"); 
-			for (var i =lines.length-1; i >= 0; i--) {
-				console.log("Line[" + i + "]:" + lines[i]);
-				
-				if (lines[i].length < 25) {
-					console.log("Skip. Line length is too short: " + lines[i].length);
-					continue;
-				}
-				var monitorLog = new MonitorLog();
-				var pairs = lines[i].split('&');
-				for (var j = pairs.length - 1; j>=0; j--) {
-					//console.log("Pair:" + pairs[j]);
-					var values = pairs[j].split('=');
-					monitorLog[values[0]] = values[1];
-					if (values[0] === 'DateTime') {
-						monitorLog.Day = values[1].slice(0, 10);
-					}
-				}
-				monitorLog.ImportTime = importTime;
-				monitorLog.save(writeError);
-			}
-			
-			res.redirect('/monitorlog/import/result/' + importTime);
-		});
 	});
 	req.pipe(busboy);
 });
