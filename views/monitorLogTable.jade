@@ -1,0 +1,34 @@
+table.table.table-condensed.table-bordered
+	thead
+	tr
+		th Time
+		th MT
+		th Language
+		th SecondXML
+		th Result
+		th ReturnCode
+	tbody
+		- each item in result
+			mixin loglist
+				td= item.DateTime
+				td= item.MT
+				td= item.Language
+				td= item.SecondXML
+				td= item.ErrorCode
+				if item.ReturnCode
+					td= item.ReturnCode
+				else
+					td -
+			case item.ErrorCode
+				when ""
+					tr.success
+						+loglist
+				when "0"
+					tr.success
+						+loglist
+				when "102"
+					tr.warning
+						+loglist
+				default
+					tr.danger
+						+loglist
