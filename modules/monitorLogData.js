@@ -16,6 +16,7 @@ var MonitorSchema = new mongoose.Schema({
 	MT : String,
 	ErrorCode: String,
 	ReturnCode: String,
+	ImportTime: String
 });
 
 mongoose.model('MonitorLog', MonitorSchema);

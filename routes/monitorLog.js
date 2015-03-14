@@ -61,6 +61,7 @@ var writeError = function (err) {
 
 var importFromFile = function(res, targetFile) {
 	fs.readFile(targetFile, 'utf8', function (err, data) {
+		var startTime = new Date();
 		var lines = data.toString().split('\n');
 		for (var i =lines.length-1; i >= 0; i--) {
 			console.log("Line[" + i + "]:" + lines[i]);
@@ -79,12 +80,16 @@ var importFromFile = function(res, targetFile) {
 					monitorLog.Day = values[1].slice(0, 10);
 				}
 			}
+			monitorLog.ImportTime = startTime;
 			monitorLog.save(writeError);
 		}
-		res.render('monitorImport', {
-			lines: data.toString().split('\n')
-		});
 		
+		var importCallback = function (err, result) {
+			res.render('monitorImport', {
+				result : result,
+			});
+		};
+		MonitorLog.find({ImportTime: startTime}).sort('-DateTime').exec(importCallback);
 	});
 };
 
