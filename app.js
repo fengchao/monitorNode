@@ -1,4 +1,6 @@
 var express = require('express');
+var session = require('express-session');
+
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -6,14 +8,36 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var busboy = require('busboy');
 
+var passport = require('passport');
+var User = require('./models/User');
+passport.use(User.localStrategy);
+passport.serializeUser(User.serializeUser);
+passport.deserializeUser(User.deserializeUser);
+
 var index = require('./routes/index');
 var monitorLog = require('./routes/monitorLog');
+
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost:27017/db', function (error) {
+	if (error) {
+		console.log(error);
+	}
+});
 
 var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+
+//Default session handling. Won't explain it as there are a lot of resources out there
+app.use(session({
+    secret: "mylittlesecret",
+}));
+
+// The important part. Must go AFTER the express session is initialized
+app.use(passport.initialize());
+app.use(passport.session());
 
 // uncomment after placing your favicon in /public
 app.use(favicon(__dirname + '/public/favicon.ico'));
@@ -25,6 +49,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/monitorlog', monitorLog);
+
+//Set up your express routes
+var auth = require('./routes/authController.js');
+
+app.get('/login', auth.loginGet);
+app.post('/login', auth.login);
+app.post('/logout', auth.logout);
+app.get('/login/success', auth.loginSuccess);
+app.get('/login/failure', auth.loginFailure);
+app.post('/register', auth.register);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

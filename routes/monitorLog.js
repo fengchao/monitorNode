@@ -3,7 +3,7 @@ var router = express.Router();
 var fs = require('fs');
 var Busboy = require('busboy');
 
-require('../modules/monitorLogData');
+require('../models/monitorLogData');
 var mongoose = require('mongoose');
 var Validator = require('validator').Validator;
 

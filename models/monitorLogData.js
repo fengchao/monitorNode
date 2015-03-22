@@ -20,9 +20,3 @@ var MonitorSchema = new mongoose.Schema({
 });
 
 mongoose.model('MonitorLog', MonitorSchema);
-
-mongoose.connect('mongodb://localhost:27017/db', function (error) {
-	if (error) {
-		console.log(error);
-	}
-});
