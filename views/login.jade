@@ -1,12 +1,15 @@
 extends layout
 
 block content
-	.container
+	.container.col-ms-6.col-ms-offset-3
+		h1.fa.fa-sign-in Login
+		if (message)
+			p message
 		form(method="post" action="/login")
 			label(for="email") Username:
-			input(type="text", name="email")
+			input.form-control(type="text", name="email")
 	
 			label(for="password") Password:
-			input(type="password", name="password")
+			input.form-control(type="password", name="password")
 	
-			input(type="submit", value="Log In")
+			input.btn.btn-warning.btn-lg(type="submit", value="Log In")
