@@ -10,8 +10,8 @@ var AuthController = {
     
     // Login a user 
     login: passport.authenticate('local', {
-        successRedirect: '/login/success',
-        failureRedirect: '/login/failure'
+        successRedirect: '/',
+        failureRedirect: '/login'
     }),
 
     // on Login Success callback
@@ -33,7 +33,7 @@ var AuthController = {
     // Log out a user   
     logout: function(req, res){
         req.logout();
-        res.end();
+        res.render('login', {		});
     },
 
     register: function(req, res){

@@ -47,6 +47,17 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+var ensureAuthenticated = function (req, res, next) {
+	  if (req.path === '/login' || req.isAuthenticated()) {
+	    return next();
+	  }
+	  res.redirect('/login')
+};
+
+app.get('/*', ensureAuthenticated, function(req, res, next) {
+	  next();
+});
+
 app.use('/', index);
 app.use('/monitorlog', monitorLog);
 
@@ -56,6 +67,7 @@ var auth = require('./routes/authController.js');
 app.get('/login', auth.loginGet);
 app.post('/login', auth.login);
 app.post('/logout', auth.logout);
+app.get('/logout', auth.logout);
 app.get('/login/success', auth.loginSuccess);
 app.get('/login/failure', auth.loginFailure);
 app.post('/register', auth.register);
