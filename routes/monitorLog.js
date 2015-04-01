@@ -145,4 +145,10 @@ router.post('/import', function(req,res){
 	req.pipe(busboy);
 });
 
+router.get('/summary', function(req,res){
+	res.render('monitorSummary', {
+			lines: "Imported file will show here".split('/\r?\n/')
+		});
+});
+
 module.exports = router;
