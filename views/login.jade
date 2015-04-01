@@ -2,14 +2,10 @@ extends layout
 
 block content
 	.container.col-ms-6.col-ms-offset-3
-		h1.fa.fa-sign-in Login
 		if (message)
 			p message
-		form(method="post" action="/login")
-			label(for="email") Username:
-			input.form-control(type="text", name="email")
-	
-			label(for="password") Password:
-			input.form-control(type="password", name="password")
-	
-			input.btn.btn-warning.btn-lg(type="submit", value="Log In")
+		form.form-signin(role='form', method="post", action="/login")
+			h2.form-signin-heading Login
+			input.form-control(type="text", name="email", placeholder='Email Address')
+			input.form-control(type="password", name="password", placeholder='password')
+			button.btn.btn-lg.btn-primary.btn-block(type="submit") Log In
