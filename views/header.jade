@@ -5,30 +5,22 @@ navbar.navbar-inverse.navbar-fixed-top(role='navigation')
 				span.icon-bar
 				span.icon-bar
 				span.icon-bar
-			a.navbar-brand(href="#") Lenovo Monitor Utility
+			a.navbar-brand(href="/") Lenovo Monitor Utility
 		.collapse.navbar-collapse
 			ul.nav.navbar-nav
-				li
-					a(href="#") Home
-				li
-					a(href="/monitorlog/show") MonitorLog
-				li
-					a(href="/monitorlog/import") Import
 				li.dropdown
 					a.dropdown-toggle(href='#', data-toggle='dropdown')
-						| Dropdown
+						| Monitor
 						span.caret
 					ul.dropdown-menu(role='menu')
 						li
-							a(href='#') Action
+							a(href="/monitorlog/show") List
 						li
-							a(href='#') Another action
-						li
-							a(href='#') Something else here
+							a(href="/monitorlog/import") Import
 						li.divider
-						li.dropdown-header Nav header
+						li.dropdown-header Statistic
 						li
-							a(href='#') Separated link
+							a(href='/monitorlog/summary') Error summary
 						li
 							a(href='#') One more separated link
 				li
