@@ -1,5 +1,6 @@
 var express = require('express');
 var session = require('express-session');
+var flash = require('connect-flash');
 
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -39,6 +40,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(flash());
+
 // uncomment after placing your favicon in /public
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
@@ -55,6 +58,10 @@ var ensureAuthenticated = function (req, res, next) {
 };
 
 app.get('/*', ensureAuthenticated, function(req, res, next) {
+	  next();
+});
+
+app.post('/*', ensureAuthenticated, function(req, res, next) {
 	  next();
 });
 
