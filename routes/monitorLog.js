@@ -160,10 +160,9 @@ router.get('/summary', function(req,res){
 				MonitorLog.aggregate(
 					{$group: {_id: "$ErrorCode", count: {$sum: 1}}},
 					{$project: {_id:1, ErrorCode:1, count:1}},
+					{$sort: {count: -1}},
 					function (err, result) {
-						if (err)
-							console.log(err);
-						console.log(result);
+						if (err) { console.log(err); }
 						res.render('monitorSummary', {
 							summary: summary,
 							errorSummary : result
