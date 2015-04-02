@@ -18,7 +18,6 @@ block content
 						.col-xs-6.col-sm-3.placeholder
 							img.img-responsive(data-src='holder.js/200x200/auto/sky', alt='Generic placeholder thumbnail')
 							h4 Label
-							span.text-muted Something else
 				h2.sub-header Summary
 					.table-responsive
 						table.table.table-striped
@@ -34,4 +33,16 @@ block content
 									td= summary.totalRec
 									td= summary.successRec
 									td= summary.failRec
+				h2.sub-header Error
+					.table-responsive
+						table.table.table-striped
+							thead
+								tr
+									th Error
+									th Count
+							tbody
+								- each item in errorSummary
+									tr
+										td= item._id
+										td= item.count
 		

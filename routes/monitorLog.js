@@ -156,8 +156,18 @@ router.get('/summary', function(req,res){
 			MonitorLog.count({ErrorCode: {$ne: "0"}}, function (err, count) {
 				summary.failRec = count;
 				summary.date = new Date().Format("yyyy-MM-dd");
-				res.render('monitorSummary', {
-					summary: summary
+				
+				MonitorLog.aggregate(
+					{$group: {_id: "$ErrorCode", count: {$sum: 1}}},
+					{$project: {_id:1, ErrorCode:1, count:1}},
+					function (err, result) {
+						if (err)
+							console.log(err);
+						console.log(result);
+						res.render('monitorSummary', {
+							summary: summary,
+							errorSummary : result
+						});
 					});
 			});
 		});
