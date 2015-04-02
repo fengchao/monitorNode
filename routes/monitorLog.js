@@ -146,9 +146,26 @@ router.post('/import', function(req,res){
 });
 
 router.get('/summary', function(req,res){
-	res.render('monitorSummary', {
-			lines: "Imported file will show here".split('/\r?\n/')
+	var summary = {};
+	
+	/* Callback deep stakc here. */
+	 MonitorLog.count({}, function (err, count) {
+		summary.totalRec = count;
+		MonitorLog.count({ErrorCode: 0}, function (err, count) {
+			summary.successRec = count;
+			MonitorLog.count({ErrorCode: {$ne: "0"}}, function (err, count) {
+				summary.failRec = count;
+				summary.date = new Date().Format("yyyy-MM-dd");
+				res.render('monitorSummary', {
+					summary: summary
+					});
+			});
 		});
+	 });
+
+
+	
+
 });
 
 module.exports = router;

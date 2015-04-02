@@ -19,17 +19,19 @@ block content
 							img.img-responsive(data-src='holder.js/200x200/auto/sky', alt='Generic placeholder thumbnail')
 							h4 Label
 							span.text-muted Something else
-				h2.sub-header Section title
+				h2.sub-header Summary
 					.table-responsive
 						table.table.table-striped
 							thead
 								tr
-									th #
-									th Header
-									th Header
+									th Date
+									th Total
+									th Success
+									th Fail
 							tbody
 								tr
-									td 1,001
-									td Lorem
-									td ipsum
+									td= summary.date
+									td= summary.totalRec
+									td= summary.successRec
+									td= summary.failRec
 		
