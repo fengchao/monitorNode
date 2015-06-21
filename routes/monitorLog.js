@@ -9,6 +9,8 @@ var Validator = require('validator').Validator;
 
 var MonitorLog = mongoose.model('MonitorLog');
 
+var maxItemsPerPage = 50;
+
 Date.prototype.yyyymmdd = function() {         
     
     var yyyy = this.getFullYear().toString();                                    
@@ -58,14 +60,16 @@ router.get('/show', function (req,res){
 	var errors = validate(message);
 	var currentDay = new Date().yyyymmdd();
 	
+	var page = req.query.page && parseInt(req.query.page, 10) || 0;
 	var searchCallback = function (err, result) {
 		res.render('monitorLog', {
 			result : result,
-			logDate: currentDay
+			logDate: currentDay,
+			page: page
 		});
 	};
 	
-	MonitorLog.find().sort('-DateTime').limit(200).exec(searchCallback);
+	MonitorLog.find().sort('-DateTime').skip(page * maxItemsPerPage).limit(maxItemsPerPage).exec(searchCallback);
 });
 
 router.get('/import', function(req,res){

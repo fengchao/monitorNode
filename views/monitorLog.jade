@@ -15,3 +15,7 @@ block content
 			input(type="submit", value="Search")
 	
 		include monitorLogTable
+		- if (page > 0) {
+			a(href="show?page=" + (page-1)) Previous &nbsp;
+		- }
+		a(href="show?page=" + (page + 1)) Next
