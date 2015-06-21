@@ -61,11 +61,16 @@ router.get('/show', function (req,res){
 	var currentDay = new Date().yyyymmdd();
 	
 	var page = req.query.page && parseInt(req.query.page, 10) || 0;
-	var searchCallback = function (err, result) {
-		res.render('monitorLog', {
-			result : result,
-			logDate: currentDay,
-			page: page
+	var searchCallback = function (err, results) {
+		results.forEach(function (result) {
+			result.Project = result.MT;
+		});
+		MonitorLog.populate(results, {path: 'Project', model: 'projects'}, function (err, result) {
+			res.render('monitorLog', {
+				result : result,
+				logDate: currentDay,
+				page: page
+			});
 		});
 	};
 	

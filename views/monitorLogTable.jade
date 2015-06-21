@@ -3,6 +3,7 @@ table.table.table-condensed.table-bordered
 	tr
 		th Time
 		th MT
+		th Project
 		th Language
 		th SecondXML
 		th Result
@@ -11,7 +12,12 @@ table.table.table-condensed.table-bordered
 		- each item in result
 			mixin loglist
 				td= item.DateTime
-				td= item.MT
+				if item.Project
+					td= item.Project._id
+					td= item.Project.name
+				else 
+					td= item.rawMT
+					td unknown
 				td= item.Language
 				td= item.SecondXML
 				td= item.ErrorCode

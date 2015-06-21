@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+require('./projectModel');
 
 var MonitorSchema = new mongoose.Schema({
 	IsLenovoPreload: String,
@@ -16,7 +17,14 @@ var MonitorSchema = new mongoose.Schema({
 	MT : String,
 	ErrorCode: String,
 	ReturnCode: String,
-	ImportTime: String
+	ImportTime: String,
+	Project: String
 });
+
+MonitorSchema.virtual('rawMT')
+.get(function() {
+	if (this.MT)
+		return this.MT;
+})
 
 mongoose.model('MonitorLog', MonitorSchema);
