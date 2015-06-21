@@ -6,6 +6,11 @@ block content
 			p message
 		form.form-signin(role='form', method="post", action="/login")
 			h2.form-signin-heading Login
-			input.form-control(type="text", name="email", placeholder='Email Address')
-			input.form-control(type="password", name="password", placeholder='password')
-			button.btn.btn-lg.btn-primary.btn-block(type="submit") Log In
+			p
+				label(for="email") Email:
+				input#email.form-control(type="text", name="email", placeholder='Email Address')
+			p
+				label(for="password") Password:
+				input#password.form-control(type="password", name="password", placeholder='password')
+			p
+				button.btn.btn-lg.btn-primary.btn-block(type="submit") Log In
