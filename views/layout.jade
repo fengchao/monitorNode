@@ -17,7 +17,9 @@ html(lang='en')
 		| </style>
 	body
 		include header
-		block content
+		.contentWrapper
+			block content
+			.push
 		include footer
 		script(src='http://lib.sinaapp.com/js/jquery/1.9.1/jquery-1.9.1.min.js')
 		script(src='http://apps.bdimg.com/libs/bootstrap/3.3.0/js/bootstrap.min.js')
