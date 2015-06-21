@@ -18,8 +18,7 @@ passport.deserializeUser(User.deserializeUser);
 var index = require('./routes/index');
 var monitorLog = require('./routes/monitorLog');
 
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/db', function (error) {
+var database = require('mongoose').connect('mongodb://localhost:27017/db', function (error) {
 	if (error) {
 		console.log(error);
 	}
