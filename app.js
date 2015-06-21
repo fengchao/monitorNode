@@ -34,6 +34,8 @@ app.set('view engine', 'jade');
 //Default session handling. Won't explain it as there are a lot of resources out there
 app.use(session({
     secret: "mylittlesecret",
+    resave: true,
+    saveUninitialized: true
 }));
 
 // The important part. Must go AFTER the express session is initialized

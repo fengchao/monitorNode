@@ -148,7 +148,7 @@ router.post('/import', function(req,res){
 router.get('/summary', function(req,res){
 	var summary = {};
 	
-	/* Callback deep stakc here. */
+	/* Deap Callback stack here. */
 	 MonitorLog.count({}, function (err, count) {
 		summary.totalRec = count;
 		MonitorLog.count({ErrorCode: 0}, function (err, count) {
@@ -171,10 +171,6 @@ router.get('/summary', function(req,res){
 			});
 		});
 	 });
-
-
-	
-
 });
 
 module.exports = router;
