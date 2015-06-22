@@ -56,11 +56,15 @@ function validate(message) {
 }
 
 router.get('/show', function (req,res){
-	var message = req.body.message;
-	var errors = validate(message);
+	var fromDate = req.query.fromDate;
+	var toDate = req.query.toDate;
+	var mt = req.query.mt;
+	var errOnly = req.query.errOnly;
+	
 	var currentDay = new Date().yyyymmdd();
 	
 	var page = req.query.page && parseInt(req.query.page, 10) || 0;
+
 	var searchCallback = function (err, results) {
 		results.forEach(function (result) {
 			result.Project = result.MT;
@@ -68,13 +72,20 @@ router.get('/show', function (req,res){
 		MonitorLog.populate(results, {path: 'Project', model: 'projects'}, function (err, result) {
 			res.render('monitorLog', {
 				result : result,
-				logDate: currentDay,
-				page: page
+				date: fromDate,
+				page : page,
+				errOnly : errOnly
 			});
 		});
 	};
 	
-	MonitorLog.find().sort('-DateTime').skip(page * maxItemsPerPage).limit(maxItemsPerPage).exec(searchCallback);
+	var query = MonitorLog.find().sort('-DateTime');
+	if (fromDate) query.where('Day').gte(fromDate);
+	if (toDate) query.where('Day').lte(toDate);
+	if (mt) query.where('MT').equals(mt);
+	if (errOnly) query.where('ErrorCode').ne('0');
+	
+	query.skip(page * maxItemsPerPage).limit(maxItemsPerPage).exec(searchCallback);
 });
 
 router.get('/import', function(req,res){
