@@ -21,10 +21,4 @@ var MonitorSchema = new mongoose.Schema({
 	Project: String
 });
 
-MonitorSchema.virtual('rawMT')
-.get(function() {
-	if (this.MT)
-		return this.MT;
-})
-
 mongoose.model('MonitorLog', MonitorSchema);
