@@ -74,6 +74,7 @@ router.get('/show', function (req,res){
 				result : result,
 				date: fromDate,
 				page : page,
+				mt: mt,
 				errOnly : errOnly
 			});
 		});
