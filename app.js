@@ -76,8 +76,6 @@ app.get('/login', auth.loginGet);
 app.post('/login', auth.login);
 app.post('/logout', auth.logout);
 app.get('/logout', auth.logout);
-app.get('/login/success', auth.loginSuccess);
-app.get('/login/failure', auth.loginFailure);
 app.post('/register', auth.register);
 
 // catch 404 and forward to error handler

@@ -11,19 +11,20 @@ UserSchema.statics.localStrategy = new LocalStrategy(
 	{
     	usernameField: 'email',
     	passwordField: 'password',
+    	passReqToCallback: true
 	},
 
 	// @see https://github.com/jaredhanson/passport-local
-	function (username, password, done)	{
+	function (req, username, password, done)	{
 		var User = require('./User');
 		User.findOne({email: username}, function(err, user) {
 			if (err) { return done(err); }
 
 			if (!user){
-				return done(null, false, { message: 'User not found.'} );
-			}
+				return done(null, false, req.flash('message', 'Invalid username or password.') );
+			} 
 			if (!user.validPassword(password)){
-				return done(null, false, { message: 'Incorrect password.'} );
+				return done(null, false, req.flash('message', 'Invalid username or password.') );
 			}
 
 			// I'm specifying the fields that I want to save into the user's session

@@ -5,15 +5,14 @@ var AuthController = {
 
     // Show login form
     loginGet:  function(req, res){
-		res.render('login', {});
+		res.render('login', {message: req.flash('message')});
     },
     
     // Login a user 
     login: passport.authenticate('local', {
         successRedirect: '/',
-        failureRedirect: '/login',
-        failureFlash: true,
-        failureFlash: 'Invalid username or password.',
+        failureRedirect: '/',
+        failureFlash: true
     }),
 
     // on Login Success callback
