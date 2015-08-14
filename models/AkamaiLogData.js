@@ -4,7 +4,7 @@ require('./projectModel');
 var AkamaiSchema = new mongoose.Schema({
 	Day : { type: String, index: true},
 	URL: String,
-	Completed : String,
+	Completed : Number,
 	Initiated : String,
 	EDGE_VOLUME : String,
 	OK_EDGE_VOLUME : String,
@@ -24,8 +24,8 @@ var AkamaiSchema = new mongoose.Schema({
 	OFFLOADED_HITS : String,
 	ORIGIN_HITS : String,
 	ORIGIN_VOLUME : String,
-	MT : String,
-	Project: String
+	//MT : String,
+	//Project: String
 });
 
 mongoose.model('AkamaiLog', AkamaiSchema);

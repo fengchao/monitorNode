@@ -4,10 +4,11 @@ table.table.table-condensed.table-bordered
 		th Date
 		th URL
 		th MT
-		th OK Hit
+		th Completed
 	tbody
 		- each item in result
-			td= item.Date
-			td= item.URL
-			td= item.MT
-			td= item.OkHit
+			tr
+				td= item.Day
+				td= item.URL
+				td= item.MT
+				td= item.Completed

@@ -5,7 +5,6 @@ var Busboy = require('busboy');
 
 require('../models/AkamaiLogData');
 var mongoose = require('mongoose');
-var Validator = require('validator').Validator;
 
 var AkamaiLog = mongoose.model('AkamaiLog');
 
@@ -14,25 +13,12 @@ var maxItemsPerPage = 50;
 String.prototype.startWith=function(str){
 	var reg=new RegExp("^"+str);
 	return reg.test(this);        
-}  
+};
 
 String.prototype.endWith=function(str){
 	var reg=new RegExp(str+"$");
 	return reg.test(this);        
-}
-
-function validate(message) {
-	var v= new Validator();
-	var errors = [];
-
-	v.error = function(msg) {
-		errors.push(msg);
-	};
-
-	//v.check(message.email, 'Please enter a valid email address').isEmail();
-
-	return errors;
-}
+};
 
 router.get('/show', function (req,res){
 	var fromDate = req.query.fromDate;
@@ -84,16 +70,6 @@ var writeError = function (err) {
 	}
 };
 
-router.get('/import/result/:time', function(req, res) {
-	var importCallback = function (err, result) {
-		res.render('monitorImport', {
-			result : result,
-		});
-	};
-	
-	MonitorLog.find({ImportTime: req.params.time}).sort('-DateTime').exec(importCallback);
-});
-
 router.post('/import', function(req,res){
 	var busboy = new Busboy({headers: req.headers});
 	var targetFile;
@@ -126,12 +102,12 @@ router.post('/import', function(req,res){
 						continue;
 					}
 
-					if (items[0] == 'end_date') {
-						importTime = items[1];
+					if (items[0] === 'end_date') {
+						importTime = items[1].trim();
 						console.log("Date:" + items[0]);
 					}
 					
-					if (items[0] == 'URL') {
+					if (items[0] === 'URL') {
 						console.log("Colume Name:");
 						for (var j = 0; j < items.length; j++) {
 							columeName.push(items[j]);
@@ -143,29 +119,29 @@ router.post('/import', function(req,res){
 						var akamaiLog = new AkamaiLog();
 						
 						// TODO: Auto detect if Excel format is changed or not
-						akamaiLog["Day"] = importTime;
-						akamaiLog["URL"] = items[0];
-						akamaiLog["Completed"] = items[2];
-						akamaiLog["Initiated"] = items[3];
-						akamaiLog["EDGE_VOLUME"] = items[4];
-						akamaiLog["OK_EDGE_VOLUME"] = items[5];
-						akamaiLog["ERROR_EDGE_VOLUME"] = items[6];
-						akamaiLog["EDGE_HITS"] = items[7];
-						akamaiLog["OK_EDGE_HITS"] = items[8];
-						akamaiLog["ERROR_EDGE_HITS"] = items[9];
-						akamaiLog["R_0XX"] = items[10];
-						akamaiLog["R_2XX"] = items[11];
-						akamaiLog["R_200"] = items[12];
-						akamaiLog["R_206"] = items[13];
-						akamaiLog["R_3XX"] = items[14];
-						akamaiLog["R_302"] = items[15];
-						akamaiLog["R_304"] = items[16];
-						akamaiLog["R_4XX"] = items[17];
-						akamaiLog["R_404"] = items[18];
-						akamaiLog["OFFLOADED_HITS"] = items[19];
-						akamaiLog["ORIGIN_HITS"] = items[20];
-						akamaiLog["ORIGIN_VOLUME"] = items[21];
-						akamaiLog["MT"] = items[22];
+						akamaiLog.Day = importTime;
+						akamaiLog.URL = items[0];
+						akamaiLog.Completed = Number(items[2]);
+						akamaiLog.Initiated = items[3];
+						akamaiLog.EDGE_VOLUME = items[4];
+						akamaiLog.OK_EDGE_VOLUME = items[5];
+						akamaiLog.ERROR_EDGE_VOLUME = items[6];
+						akamaiLog.EDGE_HITS = items[7];
+						akamaiLog.OK_EDGE_HITS = items[8];
+						akamaiLog.ERROR_EDGE_HITS = items[9];
+						akamaiLog.R_0XX = items[10];
+						akamaiLog.R_2XX = items[11];
+						akamaiLog.R_200 = items[12];
+						akamaiLog.R_206 = items[13];
+						akamaiLog.R_3XX = items[14];
+						akamaiLog.R_302 = items[15];
+						akamaiLog.R_304 = items[16];
+						akamaiLog.R_4XX = items[17];
+						akamaiLog.R_404 = items[18];
+						akamaiLog.OFFLOADED_HITS = items[19];
+						akamaiLog.ORIGIN_HITS = items[20];
+						akamaiLog.ORIGIN_VOLUME = items[21];
+						akamaiLog.MT = items[22];
 						akamaiLog.save(writeError);
 					}
 				}
@@ -179,6 +155,16 @@ router.post('/import', function(req,res){
 		console.log("Upload finished.");
 	});
 	req.pipe(busboy);
+});
+
+router.get('/import/result/:time', function(req, res) {
+	var showImported = function (err, result) {
+		res.render('akamaiImport', {
+			result : result,
+		});
+	};
+	
+	AkamaiLog.find({Day: req.params.time}).sort('-Completed').exec(showImported);
 });
 
 router.get('/summary', function(req,res){

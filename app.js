@@ -25,6 +25,8 @@ var database = require('mongoose').connect('mongodb://localhost:27017/monitorNod
 	}
 });
 
+//mongoose.set('debug', true)
+
 var app = express();
 
 // view engine setup
