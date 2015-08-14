@@ -1,0 +1,13 @@
+table.table.table-condensed.table-bordered
+	thead
+	tr
+		th Date
+		th URL
+		th MT
+		th OK Hit
+	tbody
+		- each item in result
+			td= item.Date
+			td= item.URL
+			td= item.MT
+			td= item.OkHit

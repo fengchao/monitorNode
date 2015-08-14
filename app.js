@@ -17,6 +17,7 @@ passport.deserializeUser(User.deserializeUser);
 
 var index = require('./routes/index');
 var monitorLog = require('./routes/monitorLog');
+var akamaiLog = require('./routes/akamaiLog');
 
 var database = require('mongoose').connect('mongodb://localhost:27017/monitorNode', function (error) {
 	if (error) {
@@ -55,7 +56,7 @@ var ensureAuthenticated = function (req, res, next) {
 	  if (req.path === '/login' || req.isAuthenticated()) {
 	    return next();
 	  }
-	  res.redirect('/login')
+	  res.redirect('/login');
 };
 
 app.get('/*', ensureAuthenticated, function(req, res, next) {
@@ -68,6 +69,7 @@ app.post('/*', ensureAuthenticated, function(req, res, next) {
 
 app.use('/', index);
 app.use('/monitorlog', monitorLog);
+app.use('/akamai', akamaiLog);
 
 //Set up your express routes
 var auth = require('./routes/authController.js');

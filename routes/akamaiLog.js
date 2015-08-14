@@ -3,47 +3,23 @@ var router = express.Router();
 var fs = require('fs');
 var Busboy = require('busboy');
 
-require('../models/monitorLogData');
+require('../models/AkamaiLogData');
 var mongoose = require('mongoose');
 var Validator = require('validator').Validator;
 
-var MonitorLog = mongoose.model('MonitorLog');
+var AkamaiLog = mongoose.model('AkamaiLog');
 
 var maxItemsPerPage = 50;
 
-Date.prototype.yyyymmdd = function() {         
-    
-    var yyyy = this.getFullYear().toString();                                    
-    var mm = (this.getMonth()+1).toString(); // getMonth() is zero-based         
-    var dd  = this.getDate().toString();             
-    return yyyy + '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]);
-}; 
+String.prototype.startWith=function(str){
+	var reg=new RegExp("^"+str);
+	return reg.test(this);        
+}  
 
-//对Date的扩展，将 Date 转化为指定格式的String
-//月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符， 
-//年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字) 
-//例子： 
-//(new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423 
-//(new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18 
-Date.prototype.Format = function (fmt) { //author: meizz 
- var o = {
-     "M+": this.getMonth() + 1, //月份 
-     "d+": this.getDate(), //日 
-     "h+": this.getHours(), //小时 
-     "m+": this.getMinutes(), //分 
-     "s+": this.getSeconds(), //秒 
-     "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
-     "S": this.getMilliseconds() //毫秒 
- };
- if (/(y+)/.test(fmt)) {
-	 fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
- }
- for (var k in o) {
-	 if (new RegExp("(" + k + ")").test(fmt)) 
-		 fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
- }
- return fmt;
-};
+String.prototype.endWith=function(str){
+	var reg=new RegExp(str+"$");
+	return reg.test(this);        
+}
 
 function validate(message) {
 	var v= new Validator();
@@ -72,7 +48,7 @@ router.get('/show', function (req,res){
 		results.forEach(function (result) {
 			result.Project = result.MT;
 		});
-		MonitorLog.populate(results, {path: 'Project', model: 'projects'}, function (err, result) {
+		AkamaiLog.populate(results, {path: 'Project', model: 'projects'}, function (err, result) {
 			res.render('monitorLog', {
 				result : result,
 				date: fromDate,
@@ -83,21 +59,24 @@ router.get('/show', function (req,res){
 		});
 	};
 	
-	var query = MonitorLog.find().sort('-DateTime');
-	if (fromDate) query.where('Day').gte(fromDate);
-	if (toDate) query.where('Day').lte(toDate);
-	if (mt) query.where('MT').equals(mt);
-	if (errOnly) query.where('ErrorCode').ne('0');
+	var query = AkamaiLog.find().sort('-DateTime');
+	if (fromDate)
+		query.where('Day').gte(fromDate);
+	if (toDate)
+		query.where('Day').lte(toDate);
+	if (mt)
+		query.where('MT').equals(mt);
+	if (errOnly)
+		query.where('ErrorCode').ne('0');
 	
 	query.skip(page * maxItemsPerPage).limit(maxItemsPerPage).exec(searchCallback);
 });
 
 router.get('/import', function(req,res){
-	res.render('monitorImport', {
-			lines: "Imported file will show here".split('/\r?\n/')
+	res.render('akamaiImport', {
+			lines: "Imported akamai log will be shown here".split('/\r?\n/')
 		});
 });
-
 
 var writeError = function (err) {
 	if (err) {
@@ -122,13 +101,13 @@ router.post('/import', function(req,res){
 		console.log("Uploading:" + filename);
 		
 		// If file already exist, do not write again and set file to a notice.
-		if (fs.existsSync('../log_archive/monitor_log/' + filename)) {
-			targetFile = '../log_archive/monitor_log/Readme';
+		if (fs.existsSync('../log_archive/akamai_log/' + filename)) {
+			targetFile = '../log_archive/akamai_log/Readme';
 		} else {
-			targetFile = '../log_archive/monitor_log/' + filename;
+			targetFile = '../log_archive/akamai_log/' + filename;
 		}
 
-		var wstream = fs.createWriteStream('../log_archive/monitor_log/' + filename);
+		var wstream = fs.createWriteStream('../log_archive/akamai_log/' + filename);
 		wstream.on('error', function(err) {
 			console.log('Error:' + err);
 		});
@@ -136,29 +115,62 @@ router.post('/import', function(req,res){
 			console.log("Write stream closed");
 			fs.readFile(targetFile, 'utf8', function (err, data) {
 				var lines = data.toString().split('\n');
-				var importTime = new Date().Format("yyyy-MM-dd hh:mm:ss"); 
-				for (var i =lines.length-1; i >= 0; i--) {
+				var importTime;
+				var columeName = []; 
+				for (var i = 0; i < lines.length; i++) {
 					console.log("Line[" + i + "]:" + lines[i]);
 					
-					if (lines[i].length < 25) {
-						console.log("Skip. Line length is too short: " + lines[i].length);
+					// Skip empty line
+					var items = lines[i].split(',');
+					if (items.length < 2) {
 						continue;
 					}
-					var monitorLog = new MonitorLog();
-					var pairs = lines[i].split('&');
-					for (var j = pairs.length - 1; j>=0; j--) {
-						//console.log("Pair:" + pairs[j]);
-						var values = pairs[j].split('=');
-						monitorLog[values[0]] = values[1];
-						if (values[0] === 'DateTime') {
-							monitorLog.Day = values[1].slice(0, 10);
+
+					if (items[0] == 'end_date') {
+						importTime = items[1];
+						console.log("Date:" + items[0]);
+					}
+					
+					if (items[0] == 'URL') {
+						console.log("Colume Name:");
+						for (var j = 0; j < items.length; j++) {
+							columeName.push(items[j]);
+							console.log(columeName[j]);
 						}
 					}
-					monitorLog.ImportTime = importTime;
-					monitorLog.save(writeError);
+
+					if (items[0].startWith("lenovo.download.akamai.com")) {
+						var akamaiLog = new AkamaiLog();
+						
+						// TODO: Auto detect if Excel format is changed or not
+						akamaiLog["Day"] = importTime;
+						akamaiLog["URL"] = items[0];
+						akamaiLog["Completed"] = items[2];
+						akamaiLog["Initiated"] = items[3];
+						akamaiLog["EDGE_VOLUME"] = items[4];
+						akamaiLog["OK_EDGE_VOLUME"] = items[5];
+						akamaiLog["ERROR_EDGE_VOLUME"] = items[6];
+						akamaiLog["EDGE_HITS"] = items[7];
+						akamaiLog["OK_EDGE_HITS"] = items[8];
+						akamaiLog["ERROR_EDGE_HITS"] = items[9];
+						akamaiLog["R_0XX"] = items[10];
+						akamaiLog["R_2XX"] = items[11];
+						akamaiLog["R_200"] = items[12];
+						akamaiLog["R_206"] = items[13];
+						akamaiLog["R_3XX"] = items[14];
+						akamaiLog["R_302"] = items[15];
+						akamaiLog["R_304"] = items[16];
+						akamaiLog["R_4XX"] = items[17];
+						akamaiLog["R_404"] = items[18];
+						akamaiLog["OFFLOADED_HITS"] = items[19];
+						akamaiLog["ORIGIN_HITS"] = items[20];
+						akamaiLog["ORIGIN_VOLUME"] = items[21];
+						akamaiLog["MT"] = items[22];
+						akamaiLog.save(writeError);
+					}
 				}
 				
-				res.redirect('/monitorlog/import/result/' + importTime);
+				res.redirect('/akamai/import/result/' + importTime);
 			});
 		});
 		file.pipe(wstream);
