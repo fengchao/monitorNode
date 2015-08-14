@@ -1,0 +1,20 @@
+extends layout
+
+block content
+	.container
+		form(method="get" action="show")
+			label Date: &nbsp
+			input(type="date", name="Day", min="2015-07-01", value= Day)
+	
+			label(for="mt") &nbsp MT: &nbsp
+			input(type="text", name="mt" value= mt)
+			
+			input(type="submit", value="Search")
+	
+		include akamaiLogTable
+		- var nextUrl = "show?";
+		- if (mt) nextUrl += ("&mt=" + mt);		
+		- if (page > 0) {
+			a(href = nextUrl + "&page=" + (page-1)) Previous &nbsp;
+		- }
+		a(href=nextUrl+"&page=" + (page + 1)) Next

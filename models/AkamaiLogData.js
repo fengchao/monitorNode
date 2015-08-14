@@ -24,8 +24,8 @@ var AkamaiSchema = new mongoose.Schema({
 	OFFLOADED_HITS : String,
 	ORIGIN_HITS : String,
 	ORIGIN_VOLUME : String,
-	//MT : String,
-	//Project: String
+	MT : String,
+	Project: String
 });
 
 mongoose.model('AkamaiLog', AkamaiSchema);

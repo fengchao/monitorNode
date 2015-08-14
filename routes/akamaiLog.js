@@ -21,8 +21,8 @@ String.prototype.endWith=function(str){
 };
 
 router.get('/show', function (req,res){
-	var fromDate = req.query.fromDate;
-	var toDate = req.query.toDate;
+	var Day = String(req.query.Day).replace(/(-*)/g,'');
+	console.log("Day:", Day);
 	var mt = req.query.mt;
 	var errOnly = req.query.errOnly;
 	
@@ -35,25 +35,20 @@ router.get('/show', function (req,res){
 			result.Project = result.MT;
 		});
 		AkamaiLog.populate(results, {path: 'Project', model: 'projects'}, function (err, result) {
-			res.render('monitorLog', {
+			res.render('AkamaiShow', {
 				result : result,
-				date: fromDate,
+				Day: Day,
 				page : page,
 				mt: mt,
-				errOnly : errOnly
 			});
 		});
 	};
 	
-	var query = AkamaiLog.find().sort('-DateTime');
-	if (fromDate)
-		query.where('Day').gte(fromDate);
-	if (toDate)
-		query.where('Day').lte(toDate);
+	var query = AkamaiLog.find().sort('-Completed');
+	if (Day)
+		query.where('Day').equals(Day);
 	if (mt)
 		query.where('MT').equals(mt);
-	if (errOnly)
-		query.where('ErrorCode').ne('0');
 	
 	query.skip(page * maxItemsPerPage).limit(maxItemsPerPage).exec(searchCallback);
 });
