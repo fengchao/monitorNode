@@ -1,0 +1,17 @@
+extends layout
+
+block content
+	.container-fluid
+		h2.sub-header Total Download
+			.table-responsive
+				table.table.table-striped
+					thead
+						tr
+							th Package
+							th Download Count
+					tbody
+						- each item in DownloadSummary
+							tr
+								td= item._id
+								td= item.TotalCompleted
+		

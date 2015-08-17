@@ -115,7 +115,7 @@ router.post('/import', function(req,res){
 						
 						// TODO: Auto detect if Excel format is changed or not
 						akamaiLog.Day = importTime;
-						akamaiLog.URL = items[0];
+						akamaiLog.URL = String(items[0]).replace(/(lenovo\.download\.akamai\.com\/ideapad\/windows\/liveupdate\/)/g,'');
 						akamaiLog.Completed = Number(items[2]);
 						akamaiLog.Initiated = items[3];
 						akamaiLog.EDGE_VOLUME = items[4];
@@ -164,30 +164,18 @@ router.get('/import/result/:time', function(req, res) {
 
 router.get('/summary', function(req,res){
 	var summary = {};
-	
-	/* Deap Callback stack here. */
-	 MonitorLog.count({}, function (err, count) {
-		summary.totalRec = count;
-		MonitorLog.count({ErrorCode: 0}, function (err, count) {
-			summary.successRec = count;
-			MonitorLog.count({ErrorCode: {$ne: "0"}}, function (err, count) {
-				summary.failRec = count;
-				summary.date = new Date().Format("yyyy-MM-dd");
 				
-				MonitorLog.aggregate(
-					{$group: {_id: "$ErrorCode", count: {$sum: 1}}},
-					{$project: {_id:1, ErrorCode:1, count:1}},
-					{$sort: {count: -1}},
-					function (err, result) {
-						if (err) { console.log(err); }
-						res.render('monitorSummary', {
-							summary: summary,
-							errorSummary : result
-						});
-					});
-			});
-		});
-	 });
+	AkamaiLog.aggregate(
+			{$match: {URL: new RegExp('zip$',"i")}},                            // zip package only
+			{$project: {_id:1, URL:1, Completed:1}},
+			{$group: {_id: "$URL", TotalCompleted: {$sum: "$Completed"}}},      //
+			{$sort: {TotalCompleted: -1}},
+			function (err, result) {
+				if (err) { console.log(err); }
+				res.render('akamaiSummary', {
+					DownloadSummary : result
+				});
+	});
 });
 
 module.exports = router;
