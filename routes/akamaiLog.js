@@ -21,8 +21,7 @@ String.prototype.endWith=function(str){
 };
 
 router.get('/show', function (req,res){
-	var Day = String(req.query.Day).replace(/(-*)/g,'');
-	console.log("Day:", Day);
+	var Day = req.query.Day;
 	var mt = req.query.mt;
 	var errOnly = req.query.errOnly;
 	
@@ -44,13 +43,17 @@ router.get('/show', function (req,res){
 		});
 	};
 	
-	var query = AkamaiLog.find().sort('-Completed');
-	if (Day)
+	var query = AkamaiLog.find();
+	if (Day) {
+		console.log("Day:", Day);
 		query.where('Day').equals(Day);
-	if (mt)
-		query.where('MT').equals(mt);
+	}
 	
-	query.skip(page * maxItemsPerPage).limit(maxItemsPerPage).exec(searchCallback);
+	if (mt) {
+		query.where('MT').equals(mt);
+	}
+	
+	query.sort('-Completed').skip(page * maxItemsPerPage).limit(maxItemsPerPage).exec(searchCallback);
 });
 
 router.get('/import', function(req,res){
