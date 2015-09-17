@@ -68,6 +68,19 @@ var writeError = function (err) {
 	}
 };
 
+var getMTfromUrl = function (url) {
+	var items = url.split('/');
+	var endItem = items.pop();
+	if (endItem.endWith('_win7.xml') 
+			|| endItem.endWith('_win8.xml')
+			|| endItem.endWith('_win8.1.xml')
+			|| endItem.endWith('_win1.xml'))
+			|| endItem.endWith('_win10.xml')) {
+		return endItem.split('_')[0];
+	}
+	
+};
+
 router.post('/import', function(req,res){
 	var busboy = new Busboy({headers: req.headers});
 	var targetFile;
@@ -127,6 +140,9 @@ router.post('/import', function(req,res){
 						akamaiLog.Completed_percent = items[17];
 						akamaiLog.Origin_OK_Volume = items[18];
 						akamaiLog.Origin_Error_Volume = items [19];
+						
+						akamaiLog.MT = getMTfromUrl(akamaiLog.URL);
+						
 						akamaiLog.save(writeError);
 					}
 				}
