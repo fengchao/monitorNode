@@ -85,58 +85,45 @@ router.post('/import', function(req,res){
 		wstream.on('close', function() {
 			console.log("Write stream closed");
 			fs.readFile(targetFile, 'utf8', function (err, data) {
+				var dateStringOffset= '# HTTP Downloads URLs. Covers from '.length;
 				var lines = data.toString().split('\n');
-				var importTime;
-				var columeName = []; 
+				var importTime; 
 				for (var i = 0; i < lines.length; i++) {
-					console.log("Line[" + i + "]:" + lines[i]);
+					//console.log("Line[" + i + "]:" + lines[i]);
 					
-					// Skip empty line
-					var items = lines[i].split(',');
-					if (items.length < 2) {
+					if (lines[i].startWith('# HTTP Downloads URLs. Covers from')) {
+						// Get date and format to YYYY-MM-DD format
+						importTime = lines[i].substr(dateStringOffset, 10).replace(/\//g, "-");
+						console.log("Date:" + importTime);
 						continue;
 					}
-
-					if (items[0] === 'end_date') {
-						importTime = items[1].trim();
-						console.log("Date:" + items[0]);
-					}
 					
-					if (items[0] === 'URL') {
-						console.log("Colume Name:");
-						for (var j = 0; j < items.length; j++) {
-							columeName.push(items[j]);
-							console.log(columeName[j]);
-						}
-					}
-
-					if (items[0].startWith("lenovo.download.akamai.com")) {
+					if (lines[i].startWith("lenovo.download.akamai.com")) {
 						var akamaiLog = new AkamaiLog();
+						var items = lines[i].split(',');
 						
 						// TODO: Auto detect if Excel format is changed or not
 						akamaiLog.Day = importTime;
 						akamaiLog.URL = String(items[0]).replace(/(lenovo\.download\.akamai\.com\/ideapad\/windows\/liveupdate\/)/g,'');
-						akamaiLog.Completed = Number(items[2]);
-						akamaiLog.Initiated = items[3];
-						akamaiLog.EDGE_VOLUME = items[4];
-						akamaiLog.OK_EDGE_VOLUME = items[5];
-						akamaiLog.ERROR_EDGE_VOLUME = items[6];
-						akamaiLog.EDGE_HITS = items[7];
-						akamaiLog.OK_EDGE_HITS = items[8];
-						akamaiLog.ERROR_EDGE_HITS = items[9];
-						akamaiLog.R_0XX = items[10];
-						akamaiLog.R_2XX = items[11];
-						akamaiLog.R_200 = items[12];
-						akamaiLog.R_206 = items[13];
-						akamaiLog.R_3XX = items[14];
-						akamaiLog.R_302 = items[15];
-						akamaiLog.R_304 = items[16];
-						akamaiLog.R_4XX = items[17];
-						akamaiLog.R_404 = items[18];
-						akamaiLog.OFFLOADED_HITS = items[19];
-						akamaiLog.ORIGIN_HITS = items[20];
-						akamaiLog.ORIGIN_VOLUME = items[21];
-						akamaiLog.MT = items[22];
+						akamaiLog.OK_EDGE_HITS = items[1];
+						akamaiLog.OK_EDGE_VOLUME = items[2];
+						akamaiLog.ERROR_EDGE_VOLUME = items[3];
+						akamaiLog.R_0XX = items[4];
+						akamaiLog.R_200 = items[5];
+						akamaiLog.R_206 = items[6];
+						akamaiLog.R_2XX = items[7];
+						akamaiLog.R_302 = items[8];
+						akamaiLog.R_304 = items[9];
+						akamaiLog.R_3XX = items[10];
+						akamaiLog.R_404 = items[11];
+						akamaiLog.R_4XX = items[12];
+						akamaiLog.Offloaded_Hits = items[13];
+						akamaiLog.Origin_Hits = items[14];
+						akamaiLog.Initiated = items[15];
+						akamaiLog.Completed = Number(items[16]);
+						akamaiLog.Completed_percent = items[17];
+						akamaiLog.Origin_OK_Volume = items[18];
+						akamaiLog.Origin_Error_Volume = items [19];
 						akamaiLog.save(writeError);
 					}
 				}
