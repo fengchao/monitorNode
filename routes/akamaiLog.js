@@ -71,14 +71,10 @@ var writeError = function (err) {
 var getMTfromUrl = function (url) {
 	var items = url.split('/');
 	var endItem = items.pop();
-	if (endItem.endWith('_win7.xml') 
-			|| endItem.endWith('_win8.xml')
-			|| endItem.endWith('_win8.1.xml')
-			|| endItem.endWith('_win1.xml'))
-			|| endItem.endWith('_win10.xml')) {
+	if (endItem.endWith('_win7.xml') || endItem.endWith('_win8.xml') || endItem.endWith('_win8.1.xml') 
+			|| endItem.endWith('_win1.xml') || endItem.endWith('_win10.xml')) {
 		return endItem.split('_')[0];
 	}
-	
 };
 
 router.post('/import', function(req,res){
